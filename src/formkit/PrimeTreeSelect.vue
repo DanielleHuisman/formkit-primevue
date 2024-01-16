@@ -20,7 +20,7 @@ const value = computed({
 
 <template>
   <div class="p-formkit">
-    <ToggleButton
+    <TreeSelect
       v-model="value"
       v-bind="context.attrs"
       :disabled="context.disabled"

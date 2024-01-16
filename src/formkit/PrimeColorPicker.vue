@@ -1,34 +1,25 @@
-<script setup lang='ts'>
-const props = defineProps({
-  context: Object,
+<script setup lang="ts">
+import type { FormKitFrameworkContext } from '@formkit/core'
+import { computed } from 'vue'
+
+const props = defineProps<{
+  context: FormKitFrameworkContext & {
+    disabled?: boolean
+  }
+}>()
+
+const value = computed({
+  get() {
+    return props.context._value
+  },
+  set(newValue) {
+    props.context.node.input(newValue)
+  },
 })
-
-const context = props.context
-const attrs = computed(() => context?.attrs)
-
-function handleChange(e: any) {
-  context?.node.input(props.context?._value)
-}
 </script>
 
 <template>
   <div class="p-formkit">
-    <ColorPicker
-      v-model="context._value"
-      :disabled="attrs._disabled ?? false"
-      :readonly="attrs._readonly ?? false"
-      :style="attrs.style"
-      :panel-class="attrs.class"
-      :tabindex="attrs.tabindex"
-      :aria-label="attrs.ariaLabel"
-      :aria-labelledby="attrs.ariaLabelledby"
-      :default-color="attrs.defaultColor ?? 'ff0000'"
-      :inline="attrs.inline ?? false"
-      :format="attrs.format"
-      :pt="attrs.pt"
-      :pt-options="attrs.ptOptions"
-      :unstyled="attrs.unstyled ?? false"
-      @change="handleChange"
-    />
+    <ColorPicker :id="context.id" v-model="value" v-bind="context.attrs" :disabled="context.disabled" />
   </div>
 </template>

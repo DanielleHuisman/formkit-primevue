@@ -1,39 +1,39 @@
-<script setup lang='ts'>
-const props = defineProps({
-  context: Object,
+<script setup lang="ts">
+import type { FormKitFrameworkContext } from '@formkit/core'
+import { computed } from 'vue'
+
+const props = defineProps<{
+  context: FormKitFrameworkContext & {
+    disabled?: boolean
+  }
+}>()
+
+const value = computed({
+  get() {
+    return props.context._value
+  },
+  set(newValue) {
+    props.context.node.input(newValue)
+  },
 })
-
-const context = props.context
-const attrs = computed(() => context?.attrs)
-
-function handleInput(e: any) {
-  context?.node.input(props.context?._value)
-}
-
-const styleClass = computed(() => (context?.state.validationVisible && !context?.state.valid) ? `${attrs.value?.class} p-invalid` : attrs.value?.class)
 </script>
 
 <template>
   <div class="p-formkit">
     <span v-if="context.attrs.labelLeft" class="formkit-prime-left">{{ context.attrs.labelLeft }}</span>
+
     <Checkbox
-      v-model="context._value"
+      v-model="value"
+      v-bind="context.attrs"
+      :disabled="context.disabled"
       :input-id="context.id"
-      :disabled="attrs._disabled ?? false"
-      :readonly="attrs._readonly ?? false"
-      :input-style="attrs.style"
-      :input-class="styleClass"
-      :tabindex="attrs.tabindex"
-      :aria-label="attrs.ariaLabel"
-      :aria-labelledby="attrs.ariaLabelledby"
-      :binary="attrs.binary ?? true"
-      :true-value="attrs.trueValue ?? undefined"
-      :false-value="attrs.falseValue ?? undefined"
-      :pt="attrs.pt"
-      :pt-options="attrs.ptOptions"
-      :unstyled="attrs.unstyled ?? false"
-      @input="handleInput"
+      :input-class="[
+        { 'p-invalid': context.state.validationVisible && !context.state.valid },
+        context.attrs.inputClass,
+      ]"
+      @blur="context.handlers.blur"
     />
+
     <span v-if="context.attrs.labelRight" class="formkit-prime-right">{{ context.attrs.labelRight }}</span>
   </div>
 </template>

@@ -1,52 +1,35 @@
-<script setup lang='ts'>
-const props = defineProps({
-  context: Object,
+<script setup lang="ts">
+import type { FormKitFrameworkContext } from '@formkit/core'
+import { computed } from 'vue'
+
+const props = defineProps<{
+  context: FormKitFrameworkContext & {
+    disabled?: boolean
+  }
+}>()
+
+const value = computed({
+  get() {
+    return props.context._value
+  },
+  set(newValue) {
+    props.context.node.input(newValue)
+  },
 })
-
-const context = props.context
-const attrs = computed(() => context?.attrs)
-
-function handleBlur(e: any) {
-  context?.handlers.blur(e.value)
-}
-
-function handleInput(e: any) {
-  context?.node.input(e.value)
-}
-const styleClass = computed(() => (context?.state.validationVisible && !context?.state.valid) ? `${attrs.value?.class} p-invalid` : attrs.value?.class)
 </script>
 
 <template>
   <div class="p-formkit">
     <InputNumber
-      v-model="context._value"
+      v-model="value"
+      v-bind="context.attrs"
+      :disabled="context.disabled"
       :input-id="context.id"
-      :disabled="attrs._disabled ?? false"
-      :readonly="attrs._readonly ?? false"
-      :input-style="attrs.style"
-      :input-class="styleClass"
-      :tabindex="attrs.tabindex"
-      :aria-label="attrs.ariaLabel"
-      :aria-labelledby="attrs.ariaLabelledby"
-      :placeholder="attrs.placeholder"
-      :use-grouping="attrs.useGrouping ?? true"
-      :min="attrs.min ?? undefined"
-      :max="attrs.max ?? undefined"
-      :min-fraction-digits="attrs.minFractionDigits ?? undefined"
-      :max-fraction-digits="attrs.maxFractionDigits ?? undefined"
-      :locale="attrs.locale ?? undefined"
-      :mode="attrs.mode ?? undefined"
-      :currency="attrs.currency ?? undefined"
-      :prefix="attrs.prefix ?? undefined"
-      :suffix="attrs.suffix ?? undefined"
-      :show-buttons="attrs.showButtons ?? undefined"
-      :button-layout="attrs.buttonLayout ?? 'stacked'"
-      :step="attrs.step ?? undefined"
-      :pt="attrs.pt"
-      :pt-options="attrs.ptOptions"
-      :unstyled="attrs.unstyled ?? false"
-      @input="handleInput"
-      @blur="handleBlur"
+      :input-class="[
+        { 'p-invalid': context.state.validationVisible && !context.state.valid },
+        context.attrs.inputClass,
+      ]"
+      @blur="context.handlers.blur"
     />
   </div>
 </template>

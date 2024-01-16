@@ -1,41 +1,35 @@
-<script setup lang='ts'>
-const props = defineProps({
-  context: Object,
+<script setup lang="ts">
+import type { FormKitFrameworkContext } from '@formkit/core'
+import { computed } from 'vue'
+
+const props = defineProps<{
+  context: FormKitFrameworkContext & {
+    disabled?: boolean
+  }
+}>()
+
+const value = computed({
+  get() {
+    return props.context._value
+  },
+  set(newValue) {
+    props.context.node.input(newValue)
+  },
 })
-
-const context = props.context
-const attrs = computed(() => context?.attrs)
-
-function handleBlur(e: any) {
-  context?.handlers.blur(e.target.value)
-}
-
-function handleInput(e: any) {
-  context?.node.input(e.target.value)
-}
-const styleClass = computed(() => (context?.state.validationVisible && !context?.state.valid) ? `${attrs.value?.class} p-invalid` : attrs.value?.class)
 </script>
 
 <template>
   <div class="p-formkit">
-    <Textarea
-      :id="context.id"
-      v-model="context._value"
-      :disabled="attrs._disabled ?? false"
-      :readonly="attrs._readonly ?? false"
-      :style="attrs.style"
-      :class="styleClass"
-      :tabindex="attrs.tabindex"
-      :aria-label="attrs.ariaLabel"
-      :aria-labelledby="attrs.ariaLabelledby"
-      :placeholder="attrs.placeholder"
-      :rows="context.rows ?? 3"
-      :auto-resize="attrs.autoResize ?? false"
-      :pt="attrs.pt"
-      :pt-options="attrs.ptOptions"
-      :unstyled="attrs.unstyled ?? false"
-      @input="handleInput"
-      @blur="handleBlur"
+    <TextArea
+      v-model="value"
+      v-bind="context.attrs"
+      :disabled="context.disabled"
+      :input-id="context.id"
+      :input-class="[
+        { 'p-invalid': context.state.validationVisible && !context.state.valid },
+        context.attrs.inputClass,
+      ]"
+      @blur="context.handlers.blur"
     />
   </div>
 </template>
